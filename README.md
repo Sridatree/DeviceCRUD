@@ -86,3 +86,9 @@ The API will be available at: http://localhost:8080
     Once the app is running, navigate to the below link to test the endpoints:
 
 🔗 http://localhost:8080/swagger-ui/index.html
+
+
+### Access Application Online
+
+Route to: https://devicecrud.onrender.com/swagger-ui/index.html#/device-crud-controller to access the API(s) online 
+and connect to mongodb+srv://sridatree70:8K4h0qxDJQvpXp24@testcluster.bhqmzqa.mongodb.net/device-crud?retryWrites=true&w=majority to check the database.
