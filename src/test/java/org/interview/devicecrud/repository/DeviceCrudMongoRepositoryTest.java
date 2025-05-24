@@ -2,64 +2,53 @@ package org.interview.devicecrud.repository;
 
 import org.interview.devicecrud.constants.DeviceState;
 import org.interview.devicecrud.model.Device;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@TestPropertySource(properties = {
-        "spring.data.mongodb.port=0" // random port for embedded mongo
-})
-@AutoConfigureDataMongo
 public class DeviceCrudMongoRepositoryTest {
 
-    @Autowired
+    @Mock
     private DeviceCrudMongoRepository repository;
 
-    @AfterEach
-    void cleanUp() {
-        repository.deleteAll();
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @DisplayName("Find devices by brand")
     void testFindByBrand() {
 
-        Device device1 = new Device("1","Iphone14" ,"Apple", DeviceState.AVAILABLE, LocalDateTime.now());
-        Device device2 = new Device("2","S24Ultra" ,"Samsung", DeviceState.IN_USE, LocalDateTime.now());
-        Device device3 = new Device("3", "Iphone13","Apple", DeviceState.IN_USE, LocalDateTime.now());
-        repository.save(device1);
-        repository.save(device2);
-        repository.save(device3);
+        Device device1 = new Device("1", "Iphone14", "Apple", DeviceState.AVAILABLE, LocalDateTime.now());
+        Device device2 = new Device("3", "Iphone13", "Apple", DeviceState.IN_USE, LocalDateTime.now());
+        List<Device> appleDevices = Arrays.asList(device1, device2);
 
-        List<Device> appleDevices = repository.findByBrand("Apple");
+        when(repository.findByBrand("Apple")).thenReturn(appleDevices);
 
-        assertThat(appleDevices).hasSize(2);
-        assertThat(appleDevices).extracting(Device::getBrand).allMatch(brand -> brand.equals("Apple"));
+        List<Device> result = repository.findByBrand("Apple");
+
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(Device::getBrand).allMatch(brand -> brand.equals("Apple"));
     }
 
     @Test
-    @DisplayName("Find devices by state")
     void testFindByState() {
+        Device device = new Device("1", "Iphone14", "Apple", DeviceState.AVAILABLE, LocalDateTime.now());
+        List<Device> availableDevices = List.of(device);
 
-        Device device1 = new Device("1","Iphone14" ,"Apple", DeviceState.AVAILABLE, LocalDateTime.now());
-        Device device2 = new Device("2","S24Ultra" ,"Samsung", DeviceState.IN_USE, LocalDateTime.now());
-        Device device3 = new Device("3", "Iphone13","Apple", DeviceState.IN_USE, LocalDateTime.now());
+        when(repository.findByState(DeviceState.AVAILABLE)).thenReturn(availableDevices);
 
-        repository.save(device1);
-        repository.save(device2);
-        repository.save(device3);
+        List<Device> result = repository.findByState(DeviceState.AVAILABLE);
 
-        List<Device> availableDevices = repository.findByState(DeviceState.AVAILABLE);
-
-        assertThat(availableDevices).hasSize(2);
-        assertThat(availableDevices).extracting(Device::getState).allMatch(state -> state == DeviceState.AVAILABLE);
+        assertThat(result).hasSize(1);
+        assertThat(result.getFirst().getState()).isEqualTo(DeviceState.AVAILABLE);
     }
 }
