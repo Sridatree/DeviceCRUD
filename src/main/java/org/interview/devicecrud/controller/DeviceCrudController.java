@@ -1,5 +1,11 @@
 package org.interview.devicecrud.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.interview.devicecrud.aggregator.DeviceCrudAggregator;
 import org.interview.devicecrud.model.Device;
@@ -16,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/private/v1/device")
+@Tag(name = "Devices", description = "This API facilitates CRUD operation on Devices")
 public class DeviceCrudController {
     private static final Logger logger = LoggerFactory.getLogger(DeviceCrudController.class);
 
@@ -27,28 +34,50 @@ public class DeviceCrudController {
         this.deviceService = deviceService;
     }
 
-    /**
-     * Creates a new device in the system.
-     *
-     * @param deviceRequest the request body containing device details
-     * @return the created {@link Device} object
-     */
-
+    @Operation(summary = "Create a device")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Device created successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Device.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(value = "{\"id\":\"123\",\"brand\":\"Apple\",\"model\":\"iPhone 14\",\"state\":\"NEW\"}")
+                    )),
+            @ApiResponse(responseCode = "400", description = "Invalid device creation request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid device creation data\"}")
+                    )),
+            @ApiResponse(responseCode = "409", description = "Duplicate device creation attempt",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":409,\"error\":\"Conflict\",\"message\":\"Device already exists\"}")
+                    )),
+            @ApiResponse(responseCode = "500", description = "Internal server error during device creation",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Database error occurred\"}")
+                    ))
+    })
     @PostMapping("/create")
-    public ResponseEntity<Device> create(@Valid @RequestBody DeviceCreationRequest deviceRequest){
+    public ResponseEntity<Device> create(@Valid @RequestBody DeviceCreationRequest deviceRequest) {
         logger.debug("Received request to create device: {}", deviceRequest);
         Device createdDevice = deviceAggregator.createDevice(deviceRequest);
         logger.info("Device created with ID: {}", createdDevice.getId());
         return new ResponseEntity<>(createdDevice, HttpStatus.CREATED);
     }
 
-    /**
-     *Update a device based on the updated request passed
-     * @param id of the device required to be updated
-     * @param updateRequest the request body containing the device details to be updated to
-     * @return the updated {@link Device} object
-     */
-
+    @Operation(summary = "Update a device")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Device.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(value = "{\"id\":\"123\",\"brand\":\"Apple\",\"model\":\"iPhone 14 Pro\",\"state\":\"USED\"}")
+                    )),
+            @ApiResponse(responseCode = "400", description = "Invalid device update request or invalid device ID",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid device ID format\"}")
+                    )),
+            @ApiResponse(responseCode = "500", description = "Internal server error during device update",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Database update failed\"}")
+                    ))
+    })
     @PutMapping("update/{id}")
     public ResponseEntity<Device> update(@PathVariable String id, @Valid @RequestBody DeviceUpdationRequest updateRequest) {
         logger.debug("Received request to update device: {}", updateRequest);
@@ -57,12 +86,21 @@ public class DeviceCrudController {
         return ResponseEntity.ok(updatedDevice);
     }
 
-    /**
-     * Update brand of a device of passed id iff the device is not in use
-     * @param id of the device whose brand needs to be updated
-     * @param newBrand the brand to be updated to
-     * @return A completion text that the brand has been updated.
-     */
+    @Operation(summary = "Update brand of a device if it is not in use")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Brand updated successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "\"Brand updated successfully\"")
+                    )),
+            @ApiResponse(responseCode = "400", description = "Invalid request or device is in use",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Device is currently in use and brand cannot be updated\"}")
+                    )),
+            @ApiResponse(responseCode = "500", description = "Internal server error during brand update",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Database error occurred\"}")
+                    ))
+    })
     @PutMapping("updateBrand/{id}/{newBrand}")
     public ResponseEntity<String> update(@PathVariable String id, @PathVariable String newBrand) {
         logger.debug("Received request to update brand for device id: {} to new brand: {}", id, newBrand);
@@ -71,11 +109,22 @@ public class DeviceCrudController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Fetch a device of given id
-     * @param id The id of the device to be fetched
-     * @return The Device information
-     */
+    @Operation(summary = "Fetch a device by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device fetched successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Device.class),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(value = "{\"id\":\"123\",\"brand\":\"Apple\",\"model\":\"iPhone 14\",\"state\":\"NEW\"}")
+                    )),
+            @ApiResponse(responseCode = "400", description = "Invalid device ID",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid device ID format\"}")
+                    )),
+            @ApiResponse(responseCode = "500", description = "Internal server error during fetch",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Database error occurred\"}")
+                    ))
+    })
     @GetMapping("/fetch/{id}")
     public ResponseEntity<Device> get(@PathVariable String id) {
         logger.debug("Start fetch device details for id : {}", id);
@@ -84,16 +133,18 @@ public class DeviceCrudController {
         return ResponseEntity.ok(device);
     }
 
-    /**
-     * Fetch all devices from the database if no param is provided
-     * if Brand is provided in request param, fetch all devices of a particular brand
-     * if Device state is provided in request param, fetch all devices of a particular state
-     * if both Brand and state are passed in request param, fetch all devices of that state and brand
-     * @param brand Brand of the devices that needs to be fetched
-     * @param state State of the devices that needs to be fetched
-     * @return list of all devices fetched
-     */
-
+    @Operation(summary = "Fetch all devices with optional filters")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Devices fetched successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Device.class, type = "array"),
+                            examples = @io.swagger.v3.oas.annotations.media.ExampleObject(value = "[{\"id\":\"123\",\"brand\":\"Apple\",\"model\":\"iPhone 14\",\"state\":\"NEW\"},{\"id\":\"124\",\"brand\":\"Samsung\",\"model\":\"Galaxy S21\",\"state\":\"USED\"}]")
+                    )),
+            @ApiResponse(responseCode = "500", description = "Internal server error during fetch",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Database error occurred\"}")
+                    ))
+    })
     @GetMapping("/fetch")
     public ResponseEntity<List<Device>> getAll(@RequestParam(required = false) String brand,
                                                @RequestParam(required = false) String state) {
@@ -107,10 +158,21 @@ public class DeviceCrudController {
         return ResponseEntity.ok(deviceList);
     }
 
-    /**
-     * Delete the device with the given id
-     * @param id id of the request to be deleted
-     */
+    @Operation(summary = "Delete a device by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device deleted successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "\"Device deleted successfully\"")
+                    )),
+            @ApiResponse(responseCode = "400", description = "Invalid deletion request or device ID",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid device ID format\"}")
+                    )),
+            @ApiResponse(responseCode = "500", description = "Internal server error during deletion",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(example = "{\"timestamp\":\"2025-05-25T12:34:56\",\"status\":500,\"error\":\"Internal Server Error\",\"message\":\"Database deletion error\"}")
+                    ))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable String id) {
         logger.info("Received delete request for device id: {}", id);
