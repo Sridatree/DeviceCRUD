@@ -16,7 +16,7 @@ RUN ./mvnw -q dependency:go-offline
 COPY src ./src
 RUN ./mvnw -q clean package -DskipTests
 
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM maven:3.9.6-eclipse-temurin-21 AS runtime
 
 WORKDIR /app
 
