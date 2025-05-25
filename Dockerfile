@@ -23,7 +23,7 @@ COPY --from=build /app/target/*-SNAPSHOT.jar app.jar
 #App port
 EXPOSE 8080
 
-ARG MONGODB_URI=mongodb+srv://sridatree70:8K4h0qxDJQvpXp24@testcluster.bhqmzqa.mongodb.net/device-crud?retryWrites=true&w=majority
+ARG MONGODB_URI="mongodb+srv://sridatree70:8K4h0qxDJQvpXp24@testcluster.bhqmzqa.mongodb.net/device-crud?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true"
 ENV SPRING_DATA_MONGODB_URI=${MONGODB_URI}
 
 ENTRYPOINT ["java","-jar","/app/app.jar"]
