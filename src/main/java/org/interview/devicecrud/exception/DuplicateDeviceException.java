@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public class DuplicateDeviceException extends RuntimeException {
 
-    private final HttpStatus status;
+    private  HttpStatus status;
 
     public DuplicateDeviceException(String message) {
         super(message);

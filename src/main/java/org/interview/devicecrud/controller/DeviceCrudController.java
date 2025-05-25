@@ -2,7 +2,6 @@ package org.interview.devicecrud.controller;
 
 import jakarta.validation.Valid;
 import org.interview.devicecrud.aggregator.DeviceCrudAggregator;
-import org.interview.devicecrud.exception.DuplicateDeviceException;
 import org.interview.devicecrud.model.Device;
 import org.interview.devicecrud.model.DeviceCreationRequest;
 import org.interview.devicecrud.model.DeviceUpdationRequest;

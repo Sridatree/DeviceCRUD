@@ -98,14 +98,15 @@ public class DeviceCrudAggregator {
      */
     public List<Device> fetchDevices(String brand, String state){
         if (StringUtils.hasText(state) && !DeviceState.isValidState(state)) {
+            logger.error("Invalid or blank device state. Must be one of: AVAILABLE, IN-USE, INACTIVE");
             throw new IllegalArgumentException("Invalid or blank device state. Must be one of: AVAILABLE, IN-USE, INACTIVE");
         }
         DeviceState deviceState = DeviceState.fromString(state);
         return switch ((brand != null ? 1 : 0) + (state != null ? 2 : 0)) {
-            case 3 -> deviceService.getDevicesByBrandAndState(brand, deviceState); // both present
-            case 1 -> deviceService.getDevicesByBrand(brand);                // only brand
-            case 2 -> deviceService.getDevicesByState(deviceState);                // only state
-            default -> deviceService.getAllDevices();                        // none
+            case 3 -> deviceService.getDevicesByBrandAndState(brand, deviceState); // filter based on brand and state
+            case 1 -> deviceService.getDevicesByBrand(brand);                // filter based only on brand
+            case 2 -> deviceService.getDevicesByState(deviceState);                // filter based only on state
+            default -> deviceService.getAllDevices();                        // no filter, fetch all devices
         };
     }
 
@@ -121,6 +122,7 @@ public class DeviceCrudAggregator {
         }
         Device existingDevice = deviceService.fetchDeviceById(id);
         if (existingDevice.getState() == DeviceState.IN_USE) {
+            logger.error("Cannot delete device that is in use: {}",id);
             throw new InvalidDeletionException("Cannot delete device that is in use");
         }
         return deviceService.deleteDevice(id);

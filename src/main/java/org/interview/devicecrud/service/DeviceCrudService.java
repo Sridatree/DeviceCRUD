@@ -65,6 +65,7 @@ public class DeviceCrudService {
 
     public Device fetchDeviceById(String id) {
         try {
+            logger.info("Fetching device by id : {}", id);
             return repository.findById(id)
                     .orElseThrow(() -> new MongoDBException("Device not found with id: ",id));
         }catch (Exception e) {
