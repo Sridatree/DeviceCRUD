@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:21 AS build
 
 # Work directory for the build
 WORKDIR /app
@@ -16,7 +16,7 @@ RUN ./mvnw -q dependency:go-offline
 COPY src ./src
 RUN ./mvnw -q clean package -DskipTests
 
-FROM eclipse-temurin:21-jdk AS runtime
+FROM eclipse-temurin:21 AS runtime
 
 WORKDIR /app
 
