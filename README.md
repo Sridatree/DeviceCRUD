@@ -48,21 +48,40 @@ This API uses MongoDB for data persistence and is integrated with Springdoc Open
     - Java 21+
     - Maven 3.6+
     - MongoDB (running locally or on a server)
+    - Docker installed and running on your system (only needed if you want to run the app locally through docker)
+    - Access to the internet for downloading base images
+
+
 
 ### Clone the repo
     bash
     git clone https://github.com/your-username/device-resource-api.git
     cd device-resource-api
 
-### Build the application
+### Build the application locally without docker
 
     mvn clean install
 
-### Run the application
+### Run the application locally without docker
 
     mvn spring-boot:run
 
 The API will be available at: http://localhost:8080
+
+### Run the application locally through docker
+
+    docker build -t devicecrud:latest (Build)
+    docker run -d --name devicecrud -p 8080:8080 devicecrud:latest
+
+Navigate to http://localhost:8080/swagger-ui/index.html to test the app
+
+NOTE: The Mongo ATLAS URI will work from any system since I have added 0.0.0.0/0 in Atlas Network Access.
+
+### Access Application Online (Recommended)
+
+Route to: https://devicecrud.onrender.com/swagger-ui/index.html#/device-crud-controller to access the API(s) online
+and connect to mongodb+srv://sridatree70:8K4h0qxDJQvpXp24@testcluster.bhqmzqa.mongodb.net/device-crud?retryWrites=true&w=majority to check the database.
+(App takes about 1-2 minutes to load in Render since it is a free instance)
 
 ### API Endpoints
     POST /private/v1/device/create - Create a new device
@@ -83,12 +102,9 @@ The API will be available at: http://localhost:8080
 
 
 ### API Documentation (Swagger)
+    To test in local, one of the two things needs to be done.
     Once the app is running, navigate to the below link to test the endpoints:
 
 🔗 http://localhost:8080/swagger-ui/index.html
 
 
-### Access Application Online
-
-Route to: https://devicecrud.onrender.com/swagger-ui/index.html#/device-crud-controller to access the API(s) online 
-and connect to mongodb+srv://sridatree70:8K4h0qxDJQvpXp24@testcluster.bhqmzqa.mongodb.net/device-crud?retryWrites=true&w=majority to check the database.

@@ -99,7 +99,7 @@ public class DeviceCrudAggregator {
     public List<Device> fetchDevices(String brand, String state){
         if (StringUtils.hasText(state) && !DeviceState.isValidState(state)) {
             logger.error("Invalid or blank device state. Must be one of: AVAILABLE, IN-USE, INACTIVE");
-            throw new IllegalArgumentException("Invalid or blank device state. Must be one of: AVAILABLE, IN-USE, INACTIVE");
+            throw new IllegalArgumentException("Invalid or blank device state. Must be one of: AVAILABLE, IN_USE, INACTIVE");
         }
         DeviceState deviceState = DeviceState.fromString(state);
         return switch ((brand != null ? 1 : 0) + (state != null ? 2 : 0)) {

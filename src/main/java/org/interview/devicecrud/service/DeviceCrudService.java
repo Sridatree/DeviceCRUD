@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 
 import java.util.List;
@@ -47,6 +48,10 @@ public class DeviceCrudService {
     }
 
     public String updateBrandIfNotInUse(String deviceId, String newBrand) {
+        if(!StringUtils.hasText(newBrand)) {
+            logger.error("Brand should not be empty");
+            throw new IllegalArgumentException("Brand should not be empty");
+        }
         try {
             Query query = new Query(Criteria.where("id").is(deviceId).and("state").ne("IN_USE"));
             Update update = new Update().set("brand", newBrand);

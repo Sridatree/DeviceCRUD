@@ -63,8 +63,8 @@ public class DeviceCrudValidator {
 
     public void isStateValid(String state){
         if (!StringUtils.hasText(state) || !DeviceState.isValidState(state)) {
-            logger.error("Invalid or blank device state. Must be one of: AVAILABLE, IN-USE, INACTIVE");
-            throw new IllegalArgumentException("Invalid or blank device state. Must be one of: AVAILABLE, IN-USE, INACTIVE");
+            logger.error("Invalid or blank device state. Must be one of: AVAILABLE, IN_USE, INACTIVE");
+            throw new IllegalArgumentException("Invalid or blank device state. Must be one of: AVAILABLE, IN_USE, INACTIVE");
         }
     }
 }
